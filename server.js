@@ -7,19 +7,17 @@ const express = require('express');
 const dotenv = require('dotenv');
 
 //to prevent cross-origin block 
-// import cors from 'cors';
 const cors = require('cors');
 
-//thirdparty middleware
-// import morgan from "morgan";
-const morgan = require("morgan");
-
-//import mongoose
-// import mongoose from 'mongoose';
+//import mongoose to connect to database
 const mongoose = require('mongoose');
 
-// import router from './router/blogRoutes.js';
-const { router } = require('./router/blogRoutes.js');
+//routers
+const blogRoutes = require('./router/blogRoutes.js');
+const authorRoutes = require('./router/authorRoutes.js');
+
+
+const cookieParser = require('cookie-parser');
 
 //to use express third party framework
 const app = express();
@@ -27,32 +25,29 @@ const app = express();
 //for dotenv 
 dotenv.config();
 
+//middleware
 app.use(cors());
-
-app.use(morgan('dev'))
-
 app.use(express.json());
+app.use(cookieParser())
+app.use(express.static('client/build'))
 
 /*
  It simplifies the deployment process and ensures that both the front-end and back-end are served from the same origin, avoiding Cross-Origin Request Blocked errors.
 */
-app.use(express.static('client/build'))
 
 //connect to mongodb
-const dbURI = 'mongodb+srv://cautor3:2021BSi.t@nodetuts.fhdmslu.mongodb.net/blogdb';
-mongoose.connect(dbURI).then((result) => {
+mongoose.connect(process.env.MONGODB_URI).then(() => {
     app.listen(process.env.PORT, () => {
         console.log(`http://localhost:${process.env.PORT}`)
     })
 }).catch(err => console.log(err))
 
-//blog routes   
-app.use('/blogs', router);
+//login routes
+app.use('/user', authorRoutes)
 
-//404 not found page
-app.use((req, res) => {
-    res.status(404).sendFile()
-})
+//blog routes   
+app.use('/blogs', blogRoutes);
+
 
 
 

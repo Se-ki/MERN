@@ -11,7 +11,6 @@ const Blogs = () => {
 
   return (
     <div className="details content">
-      <h1>All Blogs</h1>
       <BlogList data={data} error={error} isLoading={isLoading} />
     </div>
   );

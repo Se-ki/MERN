@@ -1,33 +1,40 @@
 import { useEffect, useState } from "react";
+import { useAuthContext } from "./useAuthContext";
 
 const useFetch = ({ url }) => {
 
-    const [data, setData] = useState([])
-    const [isLoading, setLoading] = useState(false)
-    const [error, setError] = useState("")
+    const [data, setData] = useState(null);
+    const [isLoading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const { author } = useAuthContext();
 
-    // const fetchdata = async () => {
-    //     const res = await fetch(url)
-    //     const data = await res.json();
-    //     if (!res.ok) throw Error("We're unable to connect you to the server! ")
-    //     return data;
-    // }
+    const fetchdata = async () => {
+        try {
+            const response = await fetch(url, {
+                headers: { "Authorization": `Bearer ${author.token}` }
+            })
+            const json = await response.json()
+            if (!response.ok) {
+                setError(json.error)
+                setLoading(false)
+                return;
+            }
+            setData(json)
+            setLoading(false)
+        } catch (error) {
+            setLoading(false)
+            setError(error.message)
+        }
+    }
 
     useEffect(() => {
         setLoading(true);
-        fetch(url).then(res => {
-            // if (!res.ok) throw Error("We're unable to connect you to the server!")
-            return res.json()
-        }).then((data) => {
-            setLoading(false)
-            setData(data)
-        }).catch((err) => {
-            setLoading(false)
-            setError(err.message)
-        })
+        if (author) {
+            fetchdata();
+        }
     }, [])
 
-    return { data, setData, isLoading, error };
+    return { data, isLoading, error };
 }
 
 export default useFetch;

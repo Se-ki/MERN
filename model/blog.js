@@ -19,5 +19,8 @@ const blogSchema = new Schema({
 
 }, { timestamps: true })
 
+//collection means table in sql 
+//that Blogs will create automatically a collection in the mongodb database
+//                             ⬇
 const Blog = mongoose.model('Blogs', blogSchema)
-module.exports = { Blog }
+module.exports = Blog
